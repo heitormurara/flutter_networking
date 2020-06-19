@@ -54,7 +54,7 @@ class RemoteDataSource {
       } else {
         return Result.error("Book list not available");
       }
-    } catch {
+    } catch (error) {
       return Result.error("Something went wrong!");
     }
   }
