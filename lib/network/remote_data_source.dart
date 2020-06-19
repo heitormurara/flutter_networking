@@ -32,15 +32,32 @@
  * THE SOFTWARE.
  */
 
+import 'package:book_app/model/library.dart';
+import 'package:book_app/model/result.dart';
+import 'package:book_app/network/book_client.dart';
+import 'package:book_app/util/request_type.dart';
+import 'package:http/http.dart';
+
 class RemoteDataSource {
   //Creating Singleton
   RemoteDataSource._privateConstructor();
   static final RemoteDataSource _apiResponse = RemoteDataSource._privateConstructor();
   factory RemoteDataSource() => _apiResponse;
 
-  //1. TODO: add BookClient responsible for making the HTTP request
+  BookClient client = BookClient(Client());
 
-  //3. TODO: add StreamController to pass Result after adding book details
+  Future<Result> getBooks() async {
+    try {
+      final response = await client.request(requestType: RequestType.GET, path: "books");
+      if (response.statusCode == 200) {
+        return Result<Library>.success(Library.fromRawJson(response.body));
+      } else {
+        return Result.error("Book list not available");
+      }
+    } catch {
+      return Result.error("Something went wrong!");
+    }
+  }
 
   //6. TODO: create method which will return the stream to be observed
 
