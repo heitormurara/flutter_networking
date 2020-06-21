@@ -32,7 +32,10 @@
  * THE SOFTWARE.
  */
 
+import 'dart:async';
+
 import 'package:book_app/model/library.dart';
+import 'package:book_app/model/network_response.dart';
 import 'package:book_app/model/result.dart';
 import 'package:book_app/network/book_client.dart';
 import 'package:book_app/util/request_type.dart';
@@ -45,6 +48,8 @@ class RemoteDataSource {
   factory RemoteDataSource() => _apiResponse;
 
   BookClient client = BookClient(Client());
+  StreamController<Result> _addBookStream;
+  Stream<Result> hasBookAdded() => _addBookStream.stream;
 
   Future<Result> getBooks() async {
     try {
@@ -62,16 +67,28 @@ class RemoteDataSource {
   //6. TODO: create method which will return the stream to be observed
 
   void init() {
-    //4. TODO: initialise StreamController object
+    _addBookStream = StreamController();
   }
 
   //2. TODO: method to get list of books by making GET request
 
-  //5. TODO: add method to add book details using the POST request
+  void addBook(Book book) async {
+    _addBookStream.sink.add(Result<String>.loading("Loading"));
+    try {
+      final response = await client.request(requestType: RequestType.POST, path: "addBook", parameter: book);
+      if (response.statusCode == 200) {
+        _addBookStream.sink.add(Result<NetworkResponse>.success(NetworkResponse.fromRawJson(response.body)));
+      } else {
+        _addBookStream.sink.add(Result.error("Something went wrong"));
+      }
+    } catch (error) {
+      _addBookStream.sink.add(Result.error("Something went wrong"));
+    }
+  }
 
   //8. TODO: add logic to method to delete book details from the server using DELETE request
 
   void dispose() {
-    //7. TODO: close the stream that was opened to pass the result
+    _addBookStream.close();
   }
 }
