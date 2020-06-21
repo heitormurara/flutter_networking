@@ -85,21 +85,32 @@ class _FavoriteBooksScreenState extends State<FavoriteBooksScreen> {
     );
   }
 
-  ListTile bookListItem(int index, Library bookCollection, BuildContext context) {
-    return ListTile(
-      leading: Image.asset("images/book.png"),
-      title: Text(bookCollection.books[index].name),
-      subtitle: Text(
-        bookCollection.books[index].description,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.caption
-      ),
-      isThreeLine: true,
-      trailing: Text(
-        bookCollection.books[index].author,
-        style: Theme.of(context).textTheme.caption,
-      ),
-    );
+  Dismissible bookListItem(int index, Library bookCollection, BuildContext context) {
+    return Dismissible(
+      key: Key(bookCollection.books[index].name),
+      background: Container(color: Colors.red),
+      onDismissed: (direction) async {
+        Result result = await _apiResponse.deleteBook(index);
+        if (result is SuccessState) {
+          setState(() {
+            bookCollection.books.removeAt(index);
+          });
+        }
+      },
+      child: ListTile(
+        leading: Image.asset("images/book.png"),
+        title: Text(bookCollection.books[index].name),
+        subtitle: Text(
+          bookCollection.books[index].description,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.caption
+        ),
+        isThreeLine: true,
+        trailing: Text(
+          bookCollection.books[index].author,
+          style: Theme.of(context).textTheme.caption
+        ),
+      ));
   }
 }

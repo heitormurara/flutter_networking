@@ -86,7 +86,18 @@ class RemoteDataSource {
     }
   }
 
-  //8. TODO: add logic to method to delete book details from the server using DELETE request
+  Future<Result> deleteBook(int index) async {
+    try {
+      final response = await client.request(requestType: RequestType.GET, path: "deleteBook/$index");
+      if (response.statusCode == 200) {
+        return Result<NetworkResponse>.success(NetworkResponse.fromRawJson(response.body));
+      } else {
+        return Result<NetworkResponse>.error(NetworkResponse.fromRawJson(response.body));
+      }
+    } catch (error) {
+      return Result.error("Something went wrong");
+    }
+  }
 
   void dispose() {
     _addBookStream.close();
